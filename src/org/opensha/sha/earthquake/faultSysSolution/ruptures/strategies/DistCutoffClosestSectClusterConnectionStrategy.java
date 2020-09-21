@@ -35,6 +35,8 @@ public class DistCutoffClosestSectClusterConnectionStrategy implements ClusterCo
 				if (jump != null) {
 					cluster1.addConnection(jump);
 					cluster2.addConnection(jump.reverse());
+					if (jump.distance >= (0.25)) 
+						System.out.println("New jump" + jump.toString()+"; from "+jump.fromSection.getName() +" to " + jump.toSection.getName());
 					count++;
 				}
 			}

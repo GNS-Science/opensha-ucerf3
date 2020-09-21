@@ -58,7 +58,7 @@ public class Jump {
 		this.distance = distance;
 	}
 	
-	private static final DecimalFormat distDF = new DecimalFormat("0.0");
+	private static final DecimalFormat distDF = new DecimalFormat("0.000");
 	
 	@Override
 	public String toString() {

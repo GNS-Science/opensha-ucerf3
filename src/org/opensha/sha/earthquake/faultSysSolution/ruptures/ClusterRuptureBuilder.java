@@ -163,6 +163,7 @@ public class ClusterRuptureBuilder {
 					if (result.isPass()) {
 						// passes as is, add it if it's new
 						if (!uniques.contains(rup.unique)) {
+							/* CBC DEBUG save memory */
 							rups.add(rup);
 							uniques.add(rup.unique);
 							int count = rup.getTotalNumSects();
@@ -287,19 +288,22 @@ public class ClusterRuptureBuilder {
 				candidateRupture = currentRupture.take(testJump);
 				result = testRup(candidateRupture, false);
 			}
-			if (debugCriteria != null && debugCriteria.isMatch(currentRupture, testJump)
-					&& debugCriteria.appliesTo(result)) {
-				System.out.println("\tMulti "+currentRupture+" => "+testJump.toCluster+" result="+result);
-				if (testJumpOnly) {
-					System.out.println("Testing at jumps only:");
-					offerJump(currentRupture, testJump, true);
-					candidateRupture = currentRupture.take(testJump);
-				}
-				System.out.println("Testing full:");
-				testRup(candidateRupture, true);
-				if (stopAfterDebugMatch)
-					return false;
-			}
+//			if (result.isPass())
+//				System.out.println("jump passd:" + jump.toString()+"; from "+jump.fromSection.getName() +" to " + jump.toSection.getName());
+			
+//			if (debugCriteria != null && debugCriteria.isMatch(currentRupture, testJump)
+//					&& debugCriteria.appliesTo(result)) {
+//				System.out.println("\tMulti "+currentRupture+" => "+testJump.toCluster+" result="+result);
+//				if (testJumpOnly) {
+//					System.out.println("Testing at jumps only:");
+//					offerJump(currentRupture, testJump, true);
+//					candidateRupture = currentRupture.take(testJump);
+//				}
+//				System.out.println("Testing full:");
+//				testRup(candidateRupture, true);
+//				if (stopAfterDebugMatch)
+//					return false;
+//			}
 			if (!result.canContinue()) {
 				// stop building this permutation
 				continue;
@@ -315,10 +319,14 @@ public class ClusterRuptureBuilder {
 				int count = candidateRupture.getTotalNumSects();
 				if (count > largestRup) {
 					largestRup = count;
-					if (largestRup % largestRupPrintMod == 0)
+					if (largestRup % largestRupPrintMod == 0) {
 						System.out.println("\tNew largest rup has "+largestRup
 								+" subsections with "+candidateRupture.getTotalNumJumps()+" jumps and "
 								+candidateRupture.splays.size()+" splays. "+rups.size()+" rups in total");
+						for (Jump jmp: candidateRupture.internalJumps.asList()) {
+							System.out.println("\t\tRupture jump:" + jmp.toString()+" ; from "+jmp.fromSection.getName() +" to " + jmp.toSection.getName());
+						}
+					}
 				}
 			}
 			// continue to build this rupture
