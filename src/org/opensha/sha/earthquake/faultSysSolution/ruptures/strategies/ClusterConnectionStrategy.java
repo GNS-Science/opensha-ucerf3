@@ -42,6 +42,7 @@ public abstract class ClusterConnectionStrategy implements Named {
 
 	private List<? extends FaultSection> subSections;
 	private List<FaultSubsectionCluster> clusters;
+	private int clusterConnectionCount;
 	
 	protected transient HashSet<IDPairing> connectedParents;
 	protected transient boolean connectionsAdded = false;
@@ -115,7 +116,7 @@ public abstract class ClusterConnectionStrategy implements Named {
 	 * @return the number of connections added
 	 */
 	private int buildConnections() {
-		int count = 0;
+		clusterConnectionCount = 0;
 		connectedParents = new HashSet<>();
 		jumpsFrom = HashMultimap.create();
 		for (int c1=0; c1<clusters.size(); c1++) {
@@ -130,7 +131,7 @@ public abstract class ClusterConnectionStrategy implements Named {
 						cluster1.addConnection(jump);
 						Jump reverse = jump.reverse();
 						cluster2.addConnection(reverse);
-						count++;
+						clusterConnectionCount++;
 						jumpsFrom.put(jump.fromSection, jump);
 						jumpsFrom.put(reverse.fromSection, reverse);
 					}
@@ -138,7 +139,7 @@ public abstract class ClusterConnectionStrategy implements Named {
 			}
 		}
 		connectionsAdded = true;
-		return count;
+		return clusterConnectionCount;
 	}
 	
 	/**
@@ -324,6 +325,13 @@ public abstract class ClusterConnectionStrategy implements Named {
 			}
 		}
 		System.out.println("DONE");
+	}
+
+	/**
+	 * @return the the number of connections added
+	 */
+	public int getClusterConnectionCount() {
+		return clusterConnectionCount;
 	}
 
 }
