@@ -1087,10 +1087,10 @@ public class CommandLineInversionRunner {
 		return new File(dir, getSAFSegPrefix(prefix, 7.5, false)+".png").exists();
 	}
 
-	private static ArrayList<ParentMomentRecord> getSectionMoments(InversionFaultSystemSolution sol) {
+	public static ArrayList<ParentMomentRecord> getSectionMoments(SlipEnabledSolution sol) {
 		HashMap<Integer, ParentMomentRecord> map = Maps.newHashMap();
 		
-		InversionFaultSystemRupSet rupSet = sol.getRupSet();
+		FaultSystemRupSet rupSet = sol.getRupSet();
 
 		for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
 			FaultSection sect = rupSet.getFaultSectionData(sectIndex);
@@ -1118,11 +1118,11 @@ public class CommandLineInversionRunner {
 		return recs;
 	}
 
-	private static class ParentMomentRecord implements Comparable<ParentMomentRecord> {
-		int parentID;
-		String name;
-		double targetMoment;
-		double solutionMoment;
+	public static class ParentMomentRecord implements Comparable<ParentMomentRecord> {
+		public int parentID;
+		public String name;
+		public double targetMoment;
+		public double solutionMoment;
 		public ParentMomentRecord(int parentID, String name,
 				double targetMoment, double solutionMoment) {
 			super();
