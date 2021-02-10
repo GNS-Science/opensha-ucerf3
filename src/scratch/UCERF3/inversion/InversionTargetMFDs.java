@@ -13,7 +13,6 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.magdist.TaperedGR_MagFreqDist;
 
-import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -135,7 +134,14 @@ public class InversionTargetMFDs {
 	
 	public final static double FAULT_BUFFER = 12d;	// buffer for fault polygons
 
-
+	/**
+	 * Implicit constructor
+	 */
+	public InversionTargetMFDs() {
+		//do nothing this is here so subclasses can do their own setup
+	}
+	
+	
 	/**
 	 * 
 	 * @param invRupSet
@@ -215,7 +221,6 @@ public class InversionTargetMFDs {
 //		System.out.println("\ntempMag="+tempMag+"\n");
 		
 		aveMinSeismoMag = totalTargetGR.getX(totalTargetGR.getClosestXIndex(tempMag));	// round to nearest MFD value
-
 
 		if(D) {
 			debugString = "\ttotalRegionRateMgt5 =\t"+totalRegionRateMgt5+"\n"+
