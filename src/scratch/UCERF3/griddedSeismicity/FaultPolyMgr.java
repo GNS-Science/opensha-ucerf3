@@ -58,9 +58,12 @@ public class FaultPolyMgr implements Iterable<Area> {
 	private Map<Integer, Double> nodeExtents;
 	private Map<Integer, Double> sectExtents;
 
-	private static GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED();
+	private static GriddedRegion region;
+	//= new CaliforniaRegions.RELM_TESTING_GRIDDED();
 
-	private FaultPolyMgr() {}
+	private FaultPolyMgr() {
+		region = new CaliforniaRegions.RELM_TESTING_GRIDDED();
+	}
 	
 	/**
 	 * Returns the region used by this fault polygon manager
