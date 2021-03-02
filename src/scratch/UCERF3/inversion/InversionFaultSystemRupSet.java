@@ -119,7 +119,7 @@ public class InversionFaultSystemRupSet extends SlipAlongRuptureModelRupSet {
 	private Map<IDPairing, Double> subSectionDistances;
 
 	public final static double MIN_MAG_FOR_SEISMOGENIC_RUPS = 6.0;
-	private double[] minMagForSectArray;
+	protected double[] minMagForSectArray;
 	private boolean[] isRupBelowMinMagsForSects;
 
 	/**
