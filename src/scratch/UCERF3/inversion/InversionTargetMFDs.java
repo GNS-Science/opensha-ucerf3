@@ -141,8 +141,14 @@ public class InversionTargetMFDs {
 
 
 	/**
+	 * Implicit constructor required for subclassing
+	 */
+	public InversionTargetMFDs() {
+		//do nothing this is here so subclasses can do their own setup
+	}	
+	
+	/**
 	 * 
-	 * @param invRupSet
 	 * @param invRupSet
 	 */
 	public InversionTargetMFDs(InversionFaultSystemRupSet invRupSet) {
