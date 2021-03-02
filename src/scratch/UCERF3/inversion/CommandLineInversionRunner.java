@@ -62,6 +62,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SlipEnabledRupSet;
 import scratch.UCERF3.SlipEnabledSolution;
 import scratch.UCERF3.analysis.CompoundFSSPlots;
 import scratch.UCERF3.analysis.FaultSpecificSegmentationPlotGen;
@@ -1090,7 +1091,7 @@ public class CommandLineInversionRunner {
 	public static ArrayList<ParentMomentRecord> getSectionMoments(SlipEnabledSolution sol) {
 		HashMap<Integer, ParentMomentRecord> map = Maps.newHashMap();
 		
-		FaultSystemRupSet rupSet = sol.getRupSet();
+		SlipEnabledRupSet rupSet = sol.getRupSet();
 
 		for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
 			FaultSection sect = rupSet.getFaultSectionData(sectIndex);
@@ -1134,6 +1135,7 @@ public class CommandLineInversionRunner {
 		public double getDiff() {
 			return targetMoment - solutionMoment;
 		}
+
 		@Override
 		public int compareTo(ParentMomentRecord o) {
 			return Double.compare(Math.abs(getDiff()), Math.abs(o.getDiff()));
