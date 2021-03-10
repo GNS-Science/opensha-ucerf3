@@ -12,6 +12,8 @@ import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2009_ModifiedMagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.TMG2017CruMagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.TMG2017SubMagAreaRel;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
@@ -252,12 +254,66 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 			return map;
 		}
 
-	};
+	},
+	
+	TMG_SUB_2017("Thingbaijam et al.(2017) Subduction", "TMG_SUB_2017") {
+		
+		public double getAveSlip(double area, double length, double origWidth) throws Exception {
+			tmg_sub_magArea.setRake(90.0d); //reverse faulting/interface
+			double mag = tmg_sub_magArea.getMedianMag(area);
+			double moment = MagUtils.magToMoment(mag);
+			return FaultMomentCalc.getSlip(area*1e6, moment);
+		}
+		
+		public double getMag(double area, double origWidth) {
+			tmg_sub_magArea.setRake(90.0d); //reverse faulting/interface
+			return tmg_sub_magArea.getMedianMag(area);
+		}		
+		
+		public double getArea(double mag, double origWidth) {
+			tmg_sub_magArea.setRake(90.0d); //reverse faulting/interface
+			return tmg_sub_magArea.getMedianArea(mag)*1e6;
+		}
+
+		@Override
+		public double getRelativeWeight(InversionModels im) {
+			// weight needs to be updated
+			return 1.0d; 
+		}
+	},
+	
+	TMG_CRU_2017("Thingbaijam et al.(2017) Crustal", "TMG_CRU_2017") {
+		
+		public double getAveSlip(double area, double length, double origWidth) throws Exception {
+			tmg_cru_magArea.setRake(0.0d); //strike-slip faulting
+			double mag = tmg_cru_magArea.getMedianMag(area);
+			double moment = MagUtils.magToMoment(mag);
+			return FaultMomentCalc.getSlip(area*1e6, moment);
+		}
+		
+		public double getMag(double area, double origWidth) {
+			tmg_cru_magArea.setRake(0.0d); //strike-slip faulting
+			return tmg_cru_magArea.getMedianMag(area);
+		}		
+		
+		public double getArea(double mag, double origWidth) {
+			tmg_cru_magArea.setRake(0.0d); //strike-slip faulting
+			return tmg_cru_magArea.getMedianArea(mag)*1e6;
+		}
+
+		@Override
+		public double getRelativeWeight(InversionModels im) {
+			// weight needs to be updated
+			return 1.0d; 
+		}
+	};	
 	
 	private static Ellsworth_B_WG02_MagAreaRel ellB_magArea = new Ellsworth_B_WG02_MagAreaRel();
 	private static HanksBakun2002_MagAreaRel hb_magArea = new HanksBakun2002_MagAreaRel();
 	private static Shaw_2009_ModifiedMagAreaRel sh09_ModMagArea = new Shaw_2009_ModifiedMagAreaRel();
-
+	private static TMG2017SubMagAreaRel tmg_sub_magArea = new TMG2017SubMagAreaRel();
+	private static TMG2017CruMagAreaRel tmg_cru_magArea = new TMG2017CruMagAreaRel();
+	
 	private String name, shortName;
 	
 	private ScalingRelationships(String name, String shortName) {
@@ -273,8 +329,9 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	 * @param length (m)
 	  * @param origWidth (m) - the original down-dip width (before reducing by aseismicity factor)
 	 * @return
+	 * @throws Exception 
 	 */
-	 public abstract double getAveSlip(double area, double length, double origWidth);
+	 public abstract double getAveSlip(double area, double length, double origWidth) throws Exception;
 	 
 	 /**
 	  * This returns the magnitude for the given rupture area (m-sq) and width (m)
