@@ -259,26 +259,28 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	TMG_SUB_2017("Thingbaijam et al.(2017) Subduction", "TMG_SUB_2017") {
 		
 		public double getAveSlip(double area, double length, double origWidth) throws Exception {
-			tmg_sub_magArea.setRake(90.0d); //reverse faulting/interface
+			tmg_sub_magArea.setRake(90.0d); // interface
 			double mag = tmg_sub_magArea.getMedianMag(area);
 			double moment = MagUtils.magToMoment(mag);
 			return FaultMomentCalc.getSlip(area*1e6, moment);
 		}
 		
 		public double getMag(double area, double origWidth) {
-			tmg_sub_magArea.setRake(90.0d); //reverse faulting/interface
+			tmg_sub_magArea.setRake(90.0d); // interface
 			return tmg_sub_magArea.getMedianMag(area);
 		}		
 		
 		public double getArea(double mag, double origWidth) {
-			tmg_sub_magArea.setRake(90.0d); //reverse faulting/interface
+			tmg_sub_magArea.setRake(90.0d); // interface
 			return tmg_sub_magArea.getMedianArea(mag)*1e6;
 		}
-
+		
+		
 		@Override
 		public double getRelativeWeight(InversionModels im) {
 			// weight needs to be updated
 			return 1.0d; 
+
 		}
 	},
 	
@@ -300,7 +302,8 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 			tmg_cru_magArea.setRake(0.0d); //strike-slip faulting
 			return tmg_cru_magArea.getMedianArea(mag)*1e6;
 		}
-
+		
+	
 		@Override
 		public double getRelativeWeight(InversionModels im) {
 			// weight needs to be updated
