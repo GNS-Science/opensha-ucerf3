@@ -85,6 +85,7 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
+import org.opensha.sha.earthquake.rupForecastImpl.PointSource13b.PointSurface13b;
 import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultSection;
@@ -421,9 +422,6 @@ public class ETAS_Simulator {
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 //		info_fr.flush();
 		
-		
-		
-		
 		// Make list of primary aftershocks for given list of obs quakes 
 		// (filling in origin time ID, parentID, and location on parent that does triggering, with the rest to be filled in later)
 		if (D) System.out.println("Making primary aftershocks from input obsEqkRuptureList, size = "+obsEqkRuptureList.size());
@@ -685,6 +683,8 @@ public class ETAS_Simulator {
 		
 		if (D) info_fr.flush();	// this writes the above out now in case of crash
 		
+		final double maxPointSourceMag = etasParams.getMaxPointSourceMag();
+		
 		while(eventsToProcess.size()>0) {
 			
 			if (progressBar != null) progressBar.updateProgress(numSimulatedEvents, eventsToProcess.size()+numSimulatedEvents);
@@ -706,7 +706,25 @@ public class ETAS_Simulator {
 					hypoLoc = new Location(ptLoc.getLatitude()+(etas_utils.getRandomDouble()-0.5)*0.1*0.99,
 							ptLoc.getLongitude()+(etas_utils.getRandomDouble()-0.5)*0.1*0.99,
 							seisDepthDistribution.getRandomDepth(etas_utils));
-					rup.setPointSurface(hypoLoc);
+					
+					if(erf_rup.getMag()<maxPointSourceMag)
+						rup.setPointSurface(hypoLoc);
+					else {
+						double aveDip = erf_rup.getRuptureSurface().getAveDip(); // confirm this works
+						rup.setRuptureSurface(etas_utils.getRandomFiniteRupSurface(erf_rup.getMag(), hypoLoc, aveDip));
+					}
+					
+//					if(erf_rup.getRuptureSurface() instanceof PointSurface13b) {
+//						PointSurface13b ptSurf = (PointSurface13b)erf_rup.getRuptureSurface();
+//						System.out.println(
+//								erf_rup.getMag()+"\t"+
+//								erf_rup.getAveRake()+"\t"+
+//								ptSurf.getAveDip()+"\t"+
+//								ptSurf.getAveRupTopDepth()+"\t"+
+//								ptSurf.getAveStrike()+"\t"+
+//								ptSurf.getAveWidth());
+//					}
+						
 
 				}
 				else {
@@ -726,7 +744,7 @@ public class ETAS_Simulator {
 			}
 			// Not spontaneous, so set as a primary aftershock
 			else {
-				succeededInSettingRupture = etas_PrimEventSampler.setRandomPrimaryEvent(rup);
+				succeededInSettingRupture = etas_PrimEventSampler.setRandomPrimaryEvent(rup, maxPointSourceMag);
 			}
 			
 			// break out if we failed to set the rupture
@@ -949,6 +967,13 @@ public class ETAS_Simulator {
 			}
 		} else if (D) {
 			ETAS_SimAnalysisTools.plotEpicenterMap(simulationName, new File(resultsDir,"hypoMap.pdf").getAbsolutePath(), null, simulatedRupsQueue, griddedRegion.getBorder());
+
+			ArrayList<ETAS_EqkRupture> bigGridSeisEventsList = new ArrayList<ETAS_EqkRupture>();
+			for(ETAS_EqkRupture rup:simulatedRupsQueue)
+				if(rup.getFSSIndex()==-1 && rup.getMag()>maxPointSourceMag)
+					bigGridSeisEventsList.add(rup);
+			ETAS_SimAnalysisTools.plotFiniteGridSeisRupMap(simulationName, new File(resultsDir,"hypoMapBigGridSeisEvents.pdf").getAbsolutePath(), bigGridSeisEventsList, griddedRegion.getBorder());
+
 		}
 		
 		if(D) {
@@ -1480,13 +1505,13 @@ public class ETAS_Simulator {
 	public static void configAndRunSimulation() {
 		
 		ETAS_Simulator.D = true;	// debug flag
-		ETAS_Simulator.live_map = false;	// 
+		ETAS_Simulator.live_map = true;	// 
 		
 //		TestScenario scenario = TestScenario.PARKFIELD;
 		TestScenario scenario = null;
 		
-		String simulationName = "TestDebug";	// leave blank if scenario is not null
-		String incrementString = "_2"; // set as "-1", or "_2" to save previous runs
+		String simulationName = "Test40yrSim";	// leave blank if scenario is not null
+		String incrementString = "_1"; // set as "-1", or "_2" to save previous runs
 		
 		Long seed = null;
 //		Long seed = 890841985480217717l;
@@ -1498,7 +1523,7 @@ public class ETAS_Simulator {
 //		long startTimeMillis = 1270420841000l; // El Mayor
 
 		// set the duration
-		double durationYears=500;
+		double durationYears=40;
 //		double durationYears=7.0/365.25;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
@@ -1508,10 +1533,12 @@ public class ETAS_Simulator {
 //		params.setTotalRateScaleFactor(1.0);
 //		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
 		params.set_kCOV(1.5);
-//		params.setTotalRateScaleFactor(1.14);
-		params.setTotalRateScaleFactor(1.4);
+		params.setTotalRateScaleFactor(1.14);
+//		params.setTotalRateScaleFactor(1.4);
 		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		params.setStatewideCompletenessModel(U3_EqkCatalogStatewideCompleteness.RELAXED);
+		params.setMaxPointSourceMag(6.0);
+
 		
 		boolean includeSpontEvents=true;
 		boolean includeIndirectTriggering=true;
@@ -1520,8 +1547,7 @@ public class ETAS_Simulator {
 		boolean includeHistCat = true;
 
 		// Instantiate ERF; this resets date of last event on sections that ruptured after start time.
-		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(startTimeMillis, durationYears, params.getApplyGridSeisCorr());
-		
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(startTimeMillis, durationYears, params.getApplyGridSeisCorr());		
 //		MiscInfoAndPlotsCalc.plotElMayorAndLagunaSalada(erf); // makes sure the index therein is correct
 
 		
@@ -1586,6 +1612,15 @@ public class ETAS_Simulator {
 
 		
 	}
+	
+	static void testRandomRuptureSurfaces() {
+		
+		ETAS_Utils etas_utils = new ETAS_Utils(16748392l);
+		
+		double depth =8;
+		etas_utils.getRandomFiniteRupSurface(5.5, new Location(36,-122,depth), 90);
+
+	}
 
 	
 
@@ -1593,9 +1628,24 @@ public class ETAS_Simulator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+
+//		testRandomRuptureSurfaces();
+
 		configAndRunSimulation();
+		
 //		System.exit(0);
+
+		// from one of Kevin's config files:
+//		String string[] = new String[3];
+//		string[0] = "--threads";
+//		string[1] = "1";
+//		string[2] = "/Users/field/Field_Other/CEA_WGCEP/UCERF3/DeclusteringAnalysis/config_single.json";
+//		try {
+//			ETAS_Launcher.main(string);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		
 		// *********** OLD RUNS (pre Oct 2018) FROM PREVIOUS CODE VERSION BELOW (before consolidation into configAndRunSimulation()) ***********
