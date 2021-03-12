@@ -178,7 +178,10 @@ public class InversionFaultSystemRupSet extends SlipAlongRuptureModelRupSet {
 			List<List<Integer>> clusterRups,
 			List<List<Integer>> clusterSects) {
 		super(branch.getValue(SlipAlongRuptureModels.class));
-
+		
+		// CBC added extra init() call here, otherwise FaultSystemRupSet.getNumRuptures throws an exception 
+		init(rupSet);
+		
 		setPlausibilityConfiguration(rupSet.getPlausibilityConfiguration());
 		setClusterRuptures(rupSet.getClusterRuptures());
 		setParamsFromBranch(branch);
