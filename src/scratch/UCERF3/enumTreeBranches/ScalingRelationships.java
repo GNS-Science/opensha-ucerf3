@@ -103,8 +103,6 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		}
 	},
 	
-	
-
 	ELLSWORTH_B("Ellsworth B", "EllB") {
 		
 		public double getAveSlip(double area, double length, double origWidth) {
@@ -127,29 +125,6 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 			return 0.2d;
 		}
 	},
-	ELLSWORTH_B("Ellsworth B", "EllB") {
-		
-		public double getAveSlip(double area, double length, double origWidth) {
-			double mag = ellB_magArea.getMedianMag(area/1e6);
-			double moment = MagUtils.magToMoment(mag);
-			return FaultMomentCalc.getSlip(area, moment);
-		}
-		
-		public double getMag(double area, double origWidth) {
-			return ellB_magArea.getMedianMag(area*1e-6);
-		}		
-		
-		public double getArea(double mag, double origWidth) {
-			return ellB_magArea.getMedianArea(mag)*1e6;
-		}
-
-		
-		@Override
-		public double getRelativeWeight(InversionModels im) {
-			return 0.2d;
-		}
-	},
-	
 	
 	
 	ELLB_SQRT_LENGTH("EllB M(A) & Shaw12 Sqrt Length D(L)", "EllBsqrtLen") {
@@ -281,7 +256,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	
 	TMG_SUB_2017("Thingbaijam et al.(2017) Subduction", "TMG_SUB_2017") {
 		// units of the input dimensions are in m or m^2 
-		public double getAveSlip(double area, double length, double origWidth) throws Exception {
+		public double getAveSlip(double area, double length, double origWidth) {
 			tmg_sub_magArea.setRake(90.0d); // interface
 			double mag = tmg_sub_magArea.getMedianMag(area*1e-6);
 			double moment = MagUtils.magToMoment(mag);
@@ -309,7 +284,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	
 	TMG_CRU_2017("Thingbaijam et al.(2017) Crustal", "TMG_CRU_2017") {
 		// units of the input dimensions are in m or m^2 
-		public double getAveSlip(double area, double length, double origWidth) throws Exception {
+		public double getAveSlip(double area, double length, double origWidth) {
 			tmg_cru_magArea.setRake(0.0d); //strike-slip faulting
 			double mag = tmg_cru_magArea.getMedianMag(area*1e-6);
 			double moment = MagUtils.magToMoment(mag);
@@ -357,7 +332,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	 * @return
 	 * @throws Exception 
 	 */
-	 public abstract double getAveSlip(double area, double length, double origWidth) throws Exception;
+	 public abstract double getAveSlip(double area, double length, double origWidth);
 	 
 	 /**
 	  * This returns the magnitude for the given rupture area (m-sq) and width (m)
