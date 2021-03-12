@@ -119,7 +119,7 @@ public class InversionFaultSystemRupSet extends SlipAlongRuptureModelRupSet {
 	private Map<IDPairing, Double> subSectionDistances;
 
 	public final static double MIN_MAG_FOR_SEISMOGENIC_RUPS = 6.0;
-	private double[] minMagForSectArray;
+	protected double[] minMagForSectArray;
 	private boolean[] isRupBelowMinMagsForSects;
 
 	/**
@@ -178,11 +178,11 @@ public class InversionFaultSystemRupSet extends SlipAlongRuptureModelRupSet {
 			List<List<Integer>> clusterRups,
 			List<List<Integer>> clusterSects) {
 		super(branch.getValue(SlipAlongRuptureModels.class));
+		init(rupSet);
 		setPlausibilityConfiguration(rupSet.getPlausibilityConfiguration());
 		setClusterRuptures(rupSet.getClusterRuptures());
 		setParamsFromBranch(branch);
 		this.logicTreeBranch = branch;
-		init(rupSet);
 		
 		int numSects = rupSet.getNumSections();
 		int numRups = rupSet.getNumRuptures();
