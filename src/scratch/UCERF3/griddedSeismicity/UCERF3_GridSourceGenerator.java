@@ -34,7 +34,7 @@ import com.google.common.collect.Maps;
  */
 public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 
-	private final CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
+	private final GriddedRegion region;
 
 	private static double[] fracStrikeSlip,fracNormal,fracReverse;
 	private LogicTreeBranch branch;
@@ -63,6 +63,22 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 
 	/**
 	 * Options:
+	 *
+	 * 1) set a-values in fault-section polygons from moment-rate reduction or
+	 * from smoothed seismicity
+	 *
+	 * 2) focal mechanism options, and finite vs point
+	 * sources (cross hair, random strike, etc)?
+	 *
+	 * @param ifss {@code InversionFaultSystemSolution} for which
+	 *        grided/background sources should be generated
+	 */
+	public UCERF3_GridSourceGenerator(InversionFaultSystemSolution ifss) {
+		this(ifss, RELM_RegionUtils.getGriddedRegionInstance());
+	}
+
+	/**
+	 * Options:
 	 * 
 	 * 1) set a-values in fault-section polygons from moment-rate reduction or
 	 * from smoothed seismicity
@@ -73,7 +89,8 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 	 * @param ifss {@code InversionFaultSystemSolution} for which
 	 *        grided/background sources should be generated
 	 */
-	public UCERF3_GridSourceGenerator(InversionFaultSystemSolution ifss) {
+	public UCERF3_GridSourceGenerator(InversionFaultSystemSolution ifss, GriddedRegion region) {
+		this.region = region;
 		branch = ifss.getLogicTreeBranch();
 		srcSpatialPDF = branch.getValue(SpatialSeisPDF.class).getPDF();
 //		totalMgt5_Rate = branch.getValue(TotalMag5Rate.class).getRateMag5();
@@ -84,7 +101,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 		mfdNum = realOffFaultMFD.size();
 
 //		polyMgr = FaultPolyMgr.create(fss.getFaultSectionDataList(), 12d);
-		polyMgr = ifss.getRupSet().getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();
+		polyMgr = ifss.getRupSet().getInversionTargetMFDs().getGridSeisUtils().getPolyMgr(); // for loading bkg seis
 
 		System.out.println("   initSectionMFDs() ...");
 		initSectionMFDs(ifss);

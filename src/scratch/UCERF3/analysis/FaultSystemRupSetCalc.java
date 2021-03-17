@@ -1883,7 +1883,7 @@ public class FaultSystemRupSetCalc {
 		
 		// make map between parent section name and maximum magnitude (magForParSectMap)
 		HashMap<String,Double> magForParSectMap = new HashMap<String,Double>();
-		int PARKFIELD_PAR_SECT_ID = 32;
+		int PARKFIELD_PAR_SECT_ID = -32;
 		String parkfieldParSectName = null;
 		double maxMinSeismoMag=0;
 		double minMinSeismoMag=0;	// this is for testing
