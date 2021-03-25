@@ -99,6 +99,11 @@ public class FaultSubsectionCluster implements Comparable<FaultSubsectionCluster
 		Preconditions.checkState(jump.fromCluster == this);
 		Preconditions.checkState(jump.fromSection.getParentSectionId() == parentSectionID);
 		Preconditions.checkState(contains(jump.fromSection));
+		for (Jump existing : possibleJumps)
+			if (existing.toCluster.equals(jump.toCluster) && existing.toSection.equals(jump.toSection)
+					&& existing.fromSection.equals(jump.fromSection))
+				// this is a duplicate, skip adding
+				return;
 		possibleJumps.add(jump);
 	}
 	
@@ -141,7 +146,8 @@ public class FaultSubsectionCluster implements Comparable<FaultSubsectionCluster
 	}
 	
 	public List<Jump> getConnections() {
-		return ImmutableList.copyOf(possibleJumps);
+		return Collections.unmodifiableList(possibleJumps);
+//		return ImmutableList.copyOf(possibleJumps);
 	}
 	
 	public Collection<Jump> getConnections(FaultSection exitPoint) {
@@ -154,12 +160,17 @@ public class FaultSubsectionCluster implements Comparable<FaultSubsectionCluster
 	}
 	@Override
 	public String toString() {
+		return toString(-1);
+	}
+	public String toString(int jumpToID) {
 		StringBuilder str = null;
 		for (FaultSection sect : subSects) {
 			if (str == null)
 				str = new StringBuilder("[").append(parentSectionID).append(":");
 			else
 				str.append(",");
+			if (sect.getSectionId() == jumpToID)
+				str.append("->");
 			str.append(sect.getSectionId());
 		}
 		return str.append("]").toString();
@@ -278,16 +289,21 @@ public class FaultSubsectionCluster implements Comparable<FaultSubsectionCluster
 	 * This will read the next FaultSubsectionCluster from a JsonReader. This gets complicated because
 	 * jumps cannot be setup until all clusters have been read, so instead you must supply a map
 	 * of FaultSubsectionClusters to a list of JumpStub instances. Once all clusters have been read
-	 * from JSON, you can build/add all of the ruptures with the buildJumpsFromStubs(..) method
+	 * from JSON, you can build/add all of the ruptures with the buildJumpsFromStubs(..) method.
+	 * 
+	 * If prevClustersMap is supplied, then previous instances of the exact same cluster will be reused in
+	 * order to conserve memory.
 	 * 
 	 * @param in
 	 * @param allSects
 	 * @param jumpStubsMap
+	 * @param prevClustersMap
 	 * @return
 	 * @throws IOException
 	 */
 	public static FaultSubsectionCluster readJSON(JsonReader in, List<? extends FaultSection> allSects,
-			Map<FaultSubsectionCluster, List<JumpStub>> jumpStubsMap) throws IOException {
+			Map<FaultSubsectionCluster, List<JumpStub>> jumpStubsMap,
+			Map<FaultSubsectionCluster, FaultSubsectionCluster> prevClustersMap) throws IOException {
 		in.beginObject();
 		
 		Integer parentID = null;
@@ -367,6 +383,12 @@ public class FaultSubsectionCluster implements Comparable<FaultSubsectionCluster
 			cluster = new FaultSubsectionCluster(subSects, endSects);
 		else
 			cluster = new FaultSubsectionCluster(subSects);
+		if (prevClustersMap != null) {
+			if (prevClustersMap.containsKey(cluster))
+				cluster = prevClustersMap.get(cluster);
+			else
+				prevClustersMap.put(cluster, cluster);
+		}
 		if (jumps != null) {
 			if (jumpStubsMap == null)
 				System.err.println("WARNING: skipping loading all jumps (jumpStubsMap is null)");

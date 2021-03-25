@@ -8,8 +8,8 @@ import org.opensha.sha.earthquake.faultSysSolution.ruptures.FaultSubsectionClust
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.Jump;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.plausibility.PlausibilityFilter;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * Extension of {@link ClusterRupture} that can store a payload of data for plausibility filters.
@@ -27,9 +27,9 @@ public class FilterDataClusterRupture extends ClusterRupture {
 		super(cluster);
 	}
 	
-	private FilterDataClusterRupture(FaultSubsectionCluster[] clusters, ImmutableSet<Jump> internalJumps,
-			ImmutableMap<Jump, ClusterRupture> splays, UniqueRupture unique, UniqueRupture internalUnique) {
-		super(clusters, internalJumps, splays, unique, internalUnique);
+	private FilterDataClusterRupture(FaultSubsectionCluster[] clusters, ImmutableList<Jump> internalJumps,
+			ImmutableMap<Jump, ClusterRupture> splays, UniqueRupture unique, UniqueRupture internalUnique, boolean singleStrand) {
+		super(clusters, internalJumps, splays, unique, internalUnique, singleStrand);
 	}
 
 	public synchronized void addFilterData(PlausibilityFilter filter, Object data) {
@@ -55,7 +55,7 @@ public class FilterDataClusterRupture extends ClusterRupture {
 		ClusterRupture orig = super.take(jump);
 		
 		FilterDataClusterRupture ret = new FilterDataClusterRupture(orig.clusters, orig.internalJumps,
-				orig.splays, orig.unique, orig.internalUnique);
+				orig.splays, orig.unique, orig.internalUnique, orig.singleStrand);
 		if (filterData != null)
 			ret.filterData = new HashMap<>(filterData);
 		

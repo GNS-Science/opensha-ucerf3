@@ -16,3 +16,4 @@ cache:
 
 script:
   - ./gradlew test -i
+  
