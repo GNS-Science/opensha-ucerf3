@@ -143,14 +143,7 @@ public class InversionTargetMFDs {
 	 */
 	public InversionTargetMFDs() {
 		//do nothing this is here so subclasses can do their own setup
-	}	
-	
-	/**
-	 * Implicit constructor required for subclassing
-	 */
-	public InversionTargetMFDs() {
-		//do nothing this is here so subclasses can do their own setup
-	}	
+	}		
 	
 	/**
 	 * 
