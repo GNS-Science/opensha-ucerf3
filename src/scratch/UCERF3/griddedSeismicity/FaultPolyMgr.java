@@ -59,8 +59,6 @@ public class FaultPolyMgr implements Iterable<Area> {
 	private Map<Integer, Double> sectExtents;
 
 	private GriddedRegion region;
-	//= new CaliforniaRegions.RELM_TESTING_GRIDDED();
-
 	private FaultPolyMgr() {}
 	
 	/**
@@ -185,9 +183,10 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 * @return a reference to the newly minted manager
 	 */
 	public static FaultPolyMgr create(List<? extends FaultSection> fspd, Double buf, GriddedRegion region) {
-		FaultPolyMgr mgr = new FaultPolyMgr().setRegion(region);
+		FaultPolyMgr mgr = new FaultPolyMgr();
 		if (log) System.out.println("Building poly mgr...");
 		if (log) System.out.println("   section polygons");
+		mgr.region = region;
 		mgr.polys = SectionPolygons.create(fspd, buf, null);
 		mgr.init();
 		return mgr;
@@ -217,11 +216,12 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 * @return a reference to the newly minted manager
 	 */
 	public static FaultPolyMgr create(FaultModels fm, Double buf, Double len, GriddedRegion region) {		
-		FaultPolyMgr mgr = new FaultPolyMgr().setRegion(region);
+		FaultPolyMgr mgr = new FaultPolyMgr();
 		if (log) System.out.println("Building poly mgr...");
 		if (log) System.out.println("   getting faults from model");
 		List<FaultSection> faults = fm.fetchFaultSections();
 		if (log) System.out.println("   subsection polygons");
+		mgr.region = region;
 		mgr.polys = SectionPolygons.create(faults, buf, len);
 		mgr.init();
 		return mgr;

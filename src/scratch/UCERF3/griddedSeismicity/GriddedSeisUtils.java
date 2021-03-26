@@ -27,8 +27,8 @@ public class GriddedSeisUtils {
 	 */
 	public GriddedSeisUtils(List<? extends FaultSection> fltSectList, 
 			double[] pdf, double buf, GriddedRegion region) {
-		this.pdf = pdf.clone();
 		polyMgr = FaultPolyMgr.create(fltSectList, buf, region);
+		this.pdf = pdf.clone();
 	}
 	
 	/**
