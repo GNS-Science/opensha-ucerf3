@@ -1124,7 +1124,7 @@ public class CommandLineInversionRunner {
 		public String name;
 		public double targetMoment;
 		public double solutionMoment;
-		
+
 		public ParentMomentRecord(int parentID, String name,
 				double targetMoment, double solutionMoment) {
 			super();
@@ -1136,7 +1136,7 @@ public class CommandLineInversionRunner {
 		public double getDiff() {
 			return targetMoment - solutionMoment;
 		}
-		
+
 		@Override
 		public int compareTo(ParentMomentRecord o) {
 			return Double.compare(Math.abs(getDiff()), Math.abs(o.getDiff()));
