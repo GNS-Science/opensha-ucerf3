@@ -273,7 +273,7 @@ public class RupSetDiagnosticsPageGen {
 	
 	protected double defaultMaxDist = DEFAULT_MAX_DIST;
 	
-	public FaultSystemRupSet inputRupSet;
+	protected FaultSystemRupSet inputRupSet;
 	protected FaultSystemSolution inputSol;
 	protected String inputName;
 	protected PlausibilityConfiguration inputConfig;
@@ -688,11 +688,10 @@ public class RupSetDiagnosticsPageGen {
 				try {
 					plotRuptureHistograms(resourcesDir, "hist_"+scalar.name(), table, inputScalars,
 							inputUniques, compScalars, compUniques);
-				} catch( IllegalStateException wee) { 
-					//ah well	
-					System.out.println("Exception caught in Catch block");
+				} catch (IllegalStateException err) {
+					System.out.println("Exception caught in Catch block: " + err.getLocalizedMessage());
 					continue;
-				};
+				}
 				
 				lines.addAll(table.build());
 				lines.add("");
@@ -976,10 +975,9 @@ public class RupSetDiagnosticsPageGen {
 								COMP_COLOR, true, true);
 					}
 				}
-			} catch( IllegalStateException ouch) { 
-				//ah well	
-				System.out.println("Exception caught in Catch block");
-			};	
+			} catch (IllegalStateException err) {
+				System.out.println("Exception caught in Catch block: " + err.getLocalizedMessage());
+			}	
 			
 			lines.add("## Fault Section Connections");
 			lines.add(topLink); lines.add("");
@@ -1341,12 +1339,10 @@ public class RupSetDiagnosticsPageGen {
 					lines.addAll(table.build());
 					lines.add("");
 				}
-			}
-			
-		} catch( Exception ouch) { 
-			//ah well	
-			System.out.println("Exception caught in Catch block");
-		};
+			}		
+		} catch (Exception err) {
+			System.out.println("Exception caught in Catch block: " + err.getLocalizedMessage());
+		}
 		
 		// now plot section maximum mag/connected lengths
 		
