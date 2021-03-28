@@ -113,7 +113,7 @@ public class FaultSystemRupSet implements Serializable {
 	 * Initialize from another rupSet
 	 * @param rupSet
 	 */
-	public void init(FaultSystemRupSet rupSet) {
+	protected void init(FaultSystemRupSet rupSet) {
 		init(rupSet.getFaultSectionDataList(), rupSet.getSlipRateForAllSections(),
 				rupSet.getSlipRateStdDevForAllSections(), rupSet.getAreaForAllSections(),
 				rupSet.getSectionIndicesForAllRups(), rupSet.getMagForAllRups(), rupSet.getAveRakeForAllRups(),
