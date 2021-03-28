@@ -1124,6 +1124,7 @@ public class CommandLineInversionRunner {
 		public String name;
 		public double targetMoment;
 		public double solutionMoment;
+
 		public ParentMomentRecord(int parentID, String name,
 				double targetMoment, double solutionMoment) {
 			super();

@@ -143,7 +143,7 @@ public class InversionTargetMFDs {
 	 */
 	public InversionTargetMFDs() {
 		//do nothing this is here so subclasses can do their own setup
-	}	
+	}		
 	
 	/**
 	 * 

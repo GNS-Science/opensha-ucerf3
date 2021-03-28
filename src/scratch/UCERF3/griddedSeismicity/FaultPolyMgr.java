@@ -59,7 +59,6 @@ public class FaultPolyMgr implements Iterable<Area> {
 	private Map<Integer, Double> sectExtents;
 
 	private GriddedRegion region;
-
 	private FaultPolyMgr() {}
 	
 	/**
