@@ -69,11 +69,6 @@ public class FaultPolyMgr implements Iterable<Area> {
 		return region;
 	}
 	
-	private FaultPolyMgr setRegion(GriddedRegion region) {
-		this.region = region;
-		return this;
-	}
-	
 	/**
 	 * Returns a map of nodes (indices of nodes intersected by faults) to the
 	 * fraction of each node that intersects faults.
