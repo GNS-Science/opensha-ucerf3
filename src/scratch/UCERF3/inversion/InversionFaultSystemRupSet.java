@@ -163,6 +163,39 @@ public class InversionFaultSystemRupSet extends SlipAlongRuptureModelRupSet {
 	}
 
 	/**
+	 * Helper method to create a InversionFaultSystemRupSet given a rupture set.
+	 * 
+	 * Notes: 
+	 * 1)this method is an interim solution until a proper constructor is
+	 * conceived. 
+	 * 2) test scratch.UCERF3.inversion.laughTest.TestIncrementalVsFullTests 
+	 * depends on OldPlausablityFilter.
+	 * 
+	 * @param {FaultSystemRupSet} rupSet
+	 * @param {LogicTreeBranch} branch
+	 * @return {InversionFaultSystemRupSet} 
+	 */
+	public static InversionFaultSystemRupSet fromRuptureSet(FaultSystemRupSet rupSet, LogicTreeBranch branch) {
+		InversionFaultSystemRupSet newRuptureSet = new InversionFaultSystemRupSet(branch);
+
+		newRuptureSet.init(rupSet);
+		newRuptureSet.setPlausibilityConfiguration(rupSet.getPlausibilityConfiguration());
+		newRuptureSet.setClusterRuptures(rupSet.getClusterRuptures());
+		newRuptureSet.setParamsFromBranch(branch);
+		newRuptureSet.logicTreeBranch = branch;
+		return newRuptureSet;
+	}
+
+	/**
+	 * Constructor for use with static fromRuptureSet() helper.
+	 * 
+	 * @param branch
+	 */
+	public InversionFaultSystemRupSet(LogicTreeBranch branch) {
+		super(branch.getValue(SlipAlongRuptureModels.class));
+	}
+
+	/**
 	 * Constructor with everything already computed, mostly to be used for rup sets
 	 * loaded from files
 	 * 
@@ -179,14 +212,14 @@ public class InversionFaultSystemRupSet extends SlipAlongRuptureModelRupSet {
 			List<List<Integer>> clusterRups, List<List<Integer>> clusterSects) {
 		super(branch.getValue(SlipAlongRuptureModels.class));
 
-		// CBC added extra init() call here, otherwise FaultSystemRupSet.getNumRuptures
-		// throws an exception
-		init(rupSet);
-
+		// This is now required for fromRuptureSet() use
+		this.mags = rupSet.getMagForAllRups();
+		
 		setPlausibilityConfiguration(rupSet.getPlausibilityConfiguration());
 		setClusterRuptures(rupSet.getClusterRuptures());
 		setParamsFromBranch(branch);
 		this.logicTreeBranch = branch;
+
 		init(rupSet);
 
 		int numSects = rupSet.getNumSections();
