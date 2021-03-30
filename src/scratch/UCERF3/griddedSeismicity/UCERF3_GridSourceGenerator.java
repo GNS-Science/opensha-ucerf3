@@ -77,18 +77,6 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 		this(ifss, RELM_RegionUtils.getGriddedRegionInstance());
 	}
 
-	/**
-	 * Options:
-	 * 
-	 * 1) set a-values in fault-section polygons from moment-rate reduction or
-	 * from smoothed seismicity
-	 * 
-	 * 2) focal mechanism options, and finite vs point
-	 * sources (cross hair, random strike, etc)?
-	 * 
-	 * @param ifss {@code InversionFaultSystemSolution} for which
-	 *        grided/background sources should be generated
-	 */
 	public UCERF3_GridSourceGenerator(InversionFaultSystemSolution ifss, GriddedRegion region) {
 		this.region = region;
 		branch = ifss.getLogicTreeBranch();
@@ -101,7 +89,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 		mfdNum = realOffFaultMFD.size();
 
 //		polyMgr = FaultPolyMgr.create(fss.getFaultSectionDataList(), 12d);
-		polyMgr = ifss.getRupSet().getInversionTargetMFDs().getGridSeisUtils().getPolyMgr(); // for loading bkg seis
+		polyMgr = ifss.getRupSet().getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();
 
 		System.out.println("   initSectionMFDs() ...");
 		initSectionMFDs(ifss);
