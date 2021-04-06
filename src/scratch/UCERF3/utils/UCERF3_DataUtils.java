@@ -12,7 +12,7 @@ import com.google.common.base.Preconditions;
 
 public class UCERF3_DataUtils {
 	
-	protected static final String s = File.separator;
+	private static final String s = File.separator;
 	
 	/**
 	 * The local scratch data directory that is ignored by repository commits.
@@ -27,11 +27,6 @@ public class UCERF3_DataUtils {
 	public static String DATA_URL_PREFIX = "/scratch/UCERF3/data";
 	
 	/**
-	 * Implicit constructor required for subclassing
-	 */
-	protected UCERF3_DataUtils() {}
-	
-	/**
 	 * This gives the URL of a file in the specified sub directory of our UCERF3 data directory.
 	 * 
 	 * @param pathElements array of path elements (sub directories) with the file name last
@@ -44,7 +39,7 @@ public class UCERF3_DataUtils {
 		return url;
 	}
 	
-	protected static String getRelativePath(String... pathElements) {
+	private static String getRelativePath(String... pathElements) {
 		String relativePath = DATA_URL_PREFIX;
 		for (String pathElement : pathElements)
 			if (pathElement != null)

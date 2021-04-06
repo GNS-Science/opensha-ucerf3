@@ -644,7 +644,7 @@ public class UCERF3InversionConfiguration implements XMLSaveable {
 	 * If adjustOnlyIfOverMFD = false, it will adjust the starting model so that it's MFD equals the MFD constraint.
 	 * It will uniformly reduce the rates of ruptures in any magnitude bins that need adjusting.
 	 */
-	public static double[] adjustStartingModel(double[] initialRupModel,
+	private static double[] adjustStartingModel(double[] initialRupModel,
 			List<MFD_InversionConstraint> mfdInequalityConstraints, FaultSystemRupSet rupSet, boolean adjustOnlyIfOverMFD) {
 		
 		double[] rupMeanMag = rupSet.getMagForAllRups();
