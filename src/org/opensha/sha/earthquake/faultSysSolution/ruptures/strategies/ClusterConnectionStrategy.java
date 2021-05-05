@@ -48,6 +48,7 @@ public abstract class ClusterConnectionStrategy implements Named {
 
 	private List<? extends FaultSection> subSections;
 	private List<FaultSubsectionCluster> clusters;
+
 	private SectionDistanceAzimuthCalculator distCalc;
 	
 	protected transient HashSet<IDPairing> connectedParents;
@@ -56,6 +57,7 @@ public abstract class ClusterConnectionStrategy implements Named {
 	
 	public ClusterConnectionStrategy(List<? extends FaultSection> subSections, SectionDistanceAzimuthCalculator distCalc) {
 		this(subSections, buildClusters(subSections), distCalc);
+
 	}
 	
 	public ClusterConnectionStrategy(List<? extends FaultSection> subSections,
@@ -112,7 +114,7 @@ public abstract class ClusterConnectionStrategy implements Named {
 	protected List<FaultSubsectionCluster> getRawClusters() {
 		return clusters;
 	}
-	
+
 	public synchronized void checkBuildThreaded(int numThreads) {
 		if (!connectionsAdded) {
 //			System.out.println("Building connections between "+clusters.size()+" clusters");
@@ -120,7 +122,7 @@ public abstract class ClusterConnectionStrategy implements Named {
 //			System.out.println("Found "+count+" possible section connections");
 		}
 	}
-	
+
 	/**
 	 * @return list of full clusters, after adding all connections
 	 */
@@ -141,7 +143,7 @@ public abstract class ClusterConnectionStrategy implements Named {
 	 */
 	private int buildConnections(int numThreads) {
 		List<Jump> jumps = new ArrayList<>();
-		
+
 		List<ConnSearchCallable> calls = new ArrayList<>();
 		for (int c1=0; c1<clusters.size(); c1++) {
 			FaultSubsectionCluster cluster1 = clusters.get(c1);
@@ -150,7 +152,7 @@ public abstract class ClusterConnectionStrategy implements Named {
 				calls.add(new ConnSearchCallable(cluster1, cluster2));
 			}
 		}
-		
+
 		if (numThreads <= 1) {
 			for (ConnSearchCallable call : calls) {
 				List<Jump> newJumps;
@@ -165,10 +167,10 @@ public abstract class ClusterConnectionStrategy implements Named {
 		} else {
 			ExecutorService exec = Executors.newFixedThreadPool(numThreads);
 			List<Future<List<Jump>>> futures = new ArrayList<>();
-			
+
 			for (ConnSearchCallable call : calls)
 				futures.add(exec.submit(call));
-			
+
 			for (Future<List<Jump>> f : futures) {
 				try {
 					List<Jump> newJumps = f.get();
@@ -179,15 +181,15 @@ public abstract class ClusterConnectionStrategy implements Named {
 					throw ExceptionUtils.asRuntimeException(e);
 				}
 			}
-			
+
 			exec.shutdown();
 		}
-		
+
 		connectedParents = new HashSet<>();
 		jumpsFrom = HashMultimap.create();
-		
+
 //		System.out.println("got "+jumps.size()+" jumps");
-		
+
 		for (Jump jump : jumps) {
 //			System.out.println("\tadding "+jump);
 //			Preconditions.checkState(clusters.contains(jump.fromCluster));
@@ -201,16 +203,16 @@ public abstract class ClusterConnectionStrategy implements Named {
 			jumpsFrom.put(reverse.fromSection, reverse);
 //			System.out.println("\t\tfrom has "+jump.fromCluster.getConnections().size()+", to has "+jump.toCluster.getConnections().size());
 		}
-		
+
 //		for (FaultSubsectionCluster cluster : clusters)
 //			System.out.println("Cluster "+cluster+" has "+cluster.getConnections().size()+" jumps");
-		
+
 		connectionsAdded = true;
 		return jumps.size();
 	}
-	
+
 	private class ConnSearchCallable implements Callable<List<Jump>> {
-		
+
 		private FaultSubsectionCluster cluster1;
 		private FaultSubsectionCluster cluster2;
 
@@ -224,7 +226,7 @@ public abstract class ClusterConnectionStrategy implements Named {
 		public List<Jump> call() throws Exception {
 			return buildPossibleConnections(cluster1, cluster2);
 		}
-		
+
 	}
 	
 	/**
@@ -247,17 +249,17 @@ public abstract class ClusterConnectionStrategy implements Named {
 	
 	/**
 	 * Returns a list of all possible jumps from the given section
-	 * 
+	 *
 	 * @param clusters
 	 * @return
 	 */
 	public Collection<Jump> getJumpsFrom(FaultSection sect) {
 		// force it to populate connections if not yet populated
 		getClusters();
-		
+
 		return jumpsFrom.get(sect);
 	}
-	
+
 	/**
 	 * Returns a list of any possible connection(s) between the given clusters
 	 * 
@@ -412,6 +414,13 @@ public abstract class ClusterConnectionStrategy implements Named {
 			}
 		}
 		System.out.println("DONE");
+	}
+
+	/**
+	 * @return the the number of connections added
+	 */
+	public int getClusterConnectionCount() {
+		return clusterConnectionCount;
 	}
 
 }
