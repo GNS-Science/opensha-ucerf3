@@ -58,11 +58,7 @@ import scratch.UCERF3.inversion.InversionTargetMFDs;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.inversion.laughTest.UCERF3PlausibilityConfig;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
-import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
-import scratch.UCERF3.utils.RELM_RegionUtils;
-import scratch.UCERF3.utils.SectionMFD_constraint;
-import scratch.UCERF3.utils.UCERF2_A_FaultMapper;
-import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.*;
 import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 
@@ -1856,8 +1852,43 @@ public class FaultSystemRupSetCalc {
 		}
 
 	}
-	
-	
+
+	public interface AdjustMinSeismoMagParkfieldFn {
+		void adjust(FaultSystemRupSet fltSystRupSet, double systemWideMinSeismoMag, double[] minMagForSect);
+	}
+
+	// allow Parkfield to go below systemWideMinSeismoMag if aveParkfieldMag<systemWideMinSeismoMag
+	public static void adjustMinSeismoMagParkfield(FaultSystemRupSet fltSystRupSet, double systemWideMinSeismoMag, double[] minMagForSect) {
+
+		// lets first compute the average magnitude for Parkfield events
+		double aveParkfieldMag = 0;
+		List<Integer> parkRupIndexList = UCERF3InversionInputGenerator.findParkfieldRups(fltSystRupSet);
+		for (int parkRupIndex : UCERF3InversionInputGenerator.findParkfieldRups(fltSystRupSet)) {
+			aveParkfieldMag += fltSystRupSet.getMagForRup(parkRupIndex) / (double) parkRupIndexList.size();
+		}
+		if (D) System.out.println("aveParkfieldMag = " + aveParkfieldMag);
+
+		if (aveParkfieldMag < systemWideMinSeismoMag) {
+
+			int PARKFIELD_PAR_SECT_ID = 32;
+			String parkfieldParSectName = null;
+
+			List<? extends FaultSection> sectDataList = fltSystRupSet.getFaultSectionDataList();
+			for (int s = 0; s < sectDataList.size(); s++) {
+				if (sectDataList.get(s).getParentSectionId() == PARKFIELD_PAR_SECT_ID) {
+					parkfieldParSectName = sectDataList.get(s).getParentSectionName();
+					break;
+				}
+			}
+			if (D) System.out.println("parkfieldParSectName = " + parkfieldParSectName);
+
+			for (int s = 0; s < sectDataList.size(); s++) {
+				if (sectDataList.get(s).getParentSectionName().equals(parkfieldParSectName))
+					minMagForSect[s] = aveParkfieldMag;
+			}
+		}
+	}
+
 	/**
 	 * This computes the final minimum seismogenic rupture mag for each section,
 	 * where every subsection is given the greatest among all those of the parent section,
@@ -1872,19 +1903,10 @@ public class FaultSystemRupSetCalc {
 		double[] minMagForSect = new double[fltSystRupSet.getNumSections()];
 		String prevParSectName = "junk";
 		List<? extends FaultSection> sectDataList = fltSystRupSet.getFaultSectionDataList();
-		
-		// lets first compute the average magnitude for Parkfield events
-		double aveParkfieldMag=0;
-		List<Integer> parkRupIndexList = UCERF3InversionInputGenerator.findParkfieldRups(fltSystRupSet);
-		for( int parkRupIndex: UCERF3InversionInputGenerator.findParkfieldRups(fltSystRupSet)) {
-			aveParkfieldMag += fltSystRupSet.getMagForRup(parkRupIndex)/(double)parkRupIndexList.size();
-		}
-		if(D) System.out.println("aveParkfieldMag = "+aveParkfieldMag);
-		
+
 		// make map between parent section name and maximum magnitude (magForParSectMap)
 		HashMap<String,Double> magForParSectMap = new HashMap<String,Double>();
-		int PARKFIELD_PAR_SECT_ID = 32;
-		String parkfieldParSectName = null;
+
 		double maxMinSeismoMag=0;
 		double minMinSeismoMag=0;	// this is for testing
 		for(int s=0; s< sectDataList.size();s++) {
@@ -1900,8 +1922,6 @@ public class FaultSystemRupSetCalc {
 				maxMinSeismoMag = minSeismoMag;
 				minMinSeismoMag = minSeismoMag;
 				prevParSectName = parSectName;
-				if(sectDataList.get(s).getParentSectionId() == PARKFIELD_PAR_SECT_ID)
-					parkfieldParSectName = prevParSectName;
 			}
 			else {
 				if(maxMinSeismoMag<minSeismoMag)
@@ -1913,10 +1933,7 @@ public class FaultSystemRupSetCalc {
 		// do the last one:
 		magForParSectMap.put(prevParSectName, maxMinSeismoMag);
 //		System.out.println(prevParSectName+"\t"+minMinSeismoMag+"\t"+maxMinSeismoMag);
-		
-		if(D) System.out.println("parkfieldParSectName = "+parkfieldParSectName);
 
-		
 //		for(String parName:magForParSectMap.keySet())
 //			System.out.println(parName+"\t"+magForParSectMap.get(parName));
 		
@@ -1928,12 +1945,10 @@ public class FaultSystemRupSetCalc {
 				minMagForSect[s] = minMag;
 			else
 				minMagForSect[s] = systemWideMinSeismoMag;
-			
-			// allow Parkfield to go below systemWideMinSeismoMag if aveParkfieldMag<systemWideMinSeismoMag
-			if(sectDataList.get(s).getParentSectionName().equals(parkfieldParSectName) && aveParkfieldMag<systemWideMinSeismoMag)
-				minMagForSect[s] = aveParkfieldMag;
-
 		}
+
+		//adjust for Parkfield
+		Localisation.getParkFieldMinSeismoMagFn().adjust(fltSystRupSet, systemWideMinSeismoMag, minMagForSect);
 		
 		return minMagForSect;
 		

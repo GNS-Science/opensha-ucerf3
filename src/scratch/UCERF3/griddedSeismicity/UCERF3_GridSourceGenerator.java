@@ -23,6 +23,7 @@ import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.UCERF3.utils.Localisation;
 
 import com.google.common.collect.Maps;
 
@@ -34,7 +35,7 @@ import com.google.common.collect.Maps;
  */
 public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 
-	private final CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
+	private final GriddedRegion region;
 
 	private static double[] fracStrikeSlip,fracNormal,fracReverse;
 	private LogicTreeBranch branch;
@@ -74,6 +75,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 	 *        grided/background sources should be generated
 	 */
 	public UCERF3_GridSourceGenerator(InversionFaultSystemSolution ifss) {
+		region = Localisation.newGriddedRegion();
 		branch = ifss.getLogicTreeBranch();
 		srcSpatialPDF = branch.getValue(SpatialSeisPDF.class).getPDF();
 //		totalMgt5_Rate = branch.getValue(TotalMag5Rate.class).getRateMag5();
