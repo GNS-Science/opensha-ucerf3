@@ -6,13 +6,13 @@ apply from: '../opensha-commons/build-common.gradle'
 
 dependencies {
 
-    compileOnly project(path: ':opensha-core', configuration: 'compileOnly')
+    compileOnly project(path: ':opensha-core')
     compileAndResource project(path: ':opensha-core')
     
     compileAndResource 'com.google.code.gson:gson:2.8.5'
 
-    testCompile 'org.mockito:mockito-core:3.5.13'
-    testCompile 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:3.5.13'
+    testImplementation 'junit:junit:4.12'
 }
 
 
