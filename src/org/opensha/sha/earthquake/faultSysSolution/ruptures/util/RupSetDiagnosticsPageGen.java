@@ -1422,9 +1422,14 @@ public class RupSetDiagnosticsPageGen {
 			if (compRups != null)
 				table.addLine(inputName, compName);
 			String prefix = "sect_max_"+scalar.name();
-			if (!plotScalarMaxMapView(inputRupSet, resourcesDir, prefix, getTruncatedTitle(inputName),
-					inputScalars, compScalars, region, MAIN_COLOR, false, false))
+			try {			
+				if (!plotScalarMaxMapView(inputRupSet, resourcesDir, prefix, getTruncatedTitle(inputName),
+						inputScalars, compScalars, region, MAIN_COLOR, false, false))
+					continue;
+			} catch (Exception err) {
+				System.out.println("Caught exception: " + err.getLocalizedMessage());
 				continue;
+			}
 			table.initNewLine();
 			table.addColumn("![map]("+resourcesDir.getName()+"/"+prefix+".png)");
 			if (compScalars != null) {
@@ -4724,7 +4729,10 @@ public class RupSetDiagnosticsPageGen {
 		} else {
 			hist = histScalar.getHistogram(maxTrack);
 			cpt = GMT_CPT_Files.RAINBOW_UNIFORM.instance();
-			cpt = cpt.rescale(hist.getMinX() - 0.5*hist.getDelta(), hist.getMaxX() + 0.5*hist.getDelta());
+			if (hist.size() == 1)
+				cpt = cpt.rescale(hist.getX(0), hist.getX(0) <= 0d ? 1d : hist.getX(0)*1.5);
+			else
+				cpt = cpt.rescale(hist.getMinX() - 0.5*hist.getDelta(), hist.getMaxX() + 0.5*hist.getDelta());
 		}
 		cpt.setBelowMinColor(cpt.getMinColor());
 		cpt.setAboveMaxColor(cpt.getMaxColor());
